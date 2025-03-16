@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-// import { useChat } from "@/contexts/ChatContext";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 
@@ -13,15 +13,24 @@ const PLACEHOLDER_TEXTS = [
 
 const ChatInput: React.FC = () => {
   const [input, setInput] = useState("");
-  //   const { sendMessage, isLoading } = useChat();
-  const isLoading = false;
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() && !isLoading) {
-      //   sendMessage(input.trim());
+    if (!input.trim() || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const { data } = await axios.post("/api/chat", { message: input.trim() });
+      console.log("API Response:", data);
+
+      // Handle response (e.g., update chat UI with assistant's reply)
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsLoading(false);
       setInput("");
     }
   };
@@ -33,7 +42,6 @@ const ChatInput: React.FC = () => {
     }
   };
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -44,14 +52,12 @@ const ChatInput: React.FC = () => {
     }
   }, [input]);
 
-  // Cycle through placeholder texts
   useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIndex(
         (prevIndex) => (prevIndex + 1) % PLACEHOLDER_TEXTS.length
       );
     }, 5000);
-
     return () => clearInterval(interval);
   }, []);
 

@@ -121,7 +121,6 @@ async function searchPhones(filters) {
       $options: "i",
     };
   }
-  console.log("Mongo Query:", query);
 
   try {
     // @ts-expect-error - We're not using all the fields from the model
@@ -146,9 +145,8 @@ export async function POST(request) {
     }
 
     const searchParams = await extractSearchParameters(message);
-    console.log("Extracted Search Parameters:", searchParams);
-
-    const conversation = await new Conversations({
+    // @ts-expect-error - We're not using all the fields from the model
+    const conversation = await Conversations.create({
       userMsg: message,
       filters: searchParams,
     });

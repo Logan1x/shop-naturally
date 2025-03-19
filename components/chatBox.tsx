@@ -28,14 +28,10 @@ const ChatInput: React.FC = () => {
         message: query,
       });
 
-      console.log({ data });
-
       if (data.phones) {
-        console.log("Phones found:", data.phones.length);
         setResults(data.phones);
         setShowChat(false);
       } else {
-        console.log("No phones found");
         setResults([]);
         setShowChat(false);
       }

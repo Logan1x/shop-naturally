@@ -5,17 +5,18 @@ import { Star } from "lucide-react";
 
 interface PhoneProps {
   phone: {
-    id: string;
-    main_url: string;
-    price: string;
-    technical_details: {
-      Manufacturer: string;
-      OS: string;
-      RAM: string;
-      Colour: string;
-    };
-    reviews: string;
+    _id: { $oid: string };
+    fullName: string;
+    name: string;
+    brand: string;
+    ram: string;
+    storage: string;
+    price: number;
     rating: string;
+    reviews: string;
+    bought: string;
+    isInStock: boolean;
+    productUrl: string;
   };
   index: number;
 }
@@ -29,44 +30,40 @@ const PhoneCard: React.FC<PhoneProps> = ({ phone, index }) => {
       <div className="space-y-3">
         <div className="flex justify-between items-start">
           <div>
-            {phone.technical_details.Manufacturer ? (
-              <Badge
-                variant="outline"
-                className="mb-2 bg-primary/5 text-primary border-primary/20"
-              >
-                {phone.technical_details.Manufacturer}
-              </Badge>
-            ) : null}
+            <Badge
+              variant="outline"
+              className="mb-2 bg-primary/5 text-primary border-primary/20"
+            >
+              {phone.brand.toUpperCase()}
+            </Badge>
             <h3 className="text-xl font-medium tracking-tight">
               <a
-                href={phone.main_url}
+                href={phone.productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-primary transition-colors duration-200"
               >
-                {phone.technical_details.Manufacturer} {phone.id}
+                {phone.name}
               </a>
             </h3>
           </div>
           <Badge className="text-lg font-medium bg-primary/10 text-primary hover:bg-primary/15 border-0">
-            ₹{phone.price}
+            ₹{phone.price.toLocaleString()}
           </Badge>
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">OS:</span>
-            <span className="font-medium">{phone.technical_details.OS}</span>
-          </div>
-          <div className="flex items-center gap-1">
             <span className="text-muted-foreground">RAM:</span>
-            <span className="font-medium">{phone.technical_details.RAM}</span>
+            <span className="font-medium">{phone.ram}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Color:</span>
-            <span className="font-medium">
-              {phone.technical_details.Colour}
-            </span>
+            <span className="text-muted-foreground">Storage:</span>
+            <span className="font-medium">{phone.storage}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-muted-foreground">Bought:</span>
+            <span className="font-medium">{phone.bought}</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-muted-foreground">Rating:</span>
@@ -77,7 +74,7 @@ const PhoneCard: React.FC<PhoneProps> = ({ phone, index }) => {
                     key={i}
                     size={14}
                     className={`${
-                      i < Math.round(parseFloat(phone.reviews))
+                      i < Math.round(parseFloat(phone.rating))
                         ? "text-amber-500 fill-amber-500"
                         : "text-gray-300"
                     }`}
@@ -85,11 +82,15 @@ const PhoneCard: React.FC<PhoneProps> = ({ phone, index }) => {
                 ))}
               </div>
               <span className="font-medium">
-                {phone.reviews} ({phone.rating})
+                {phone.rating} ({phone.reviews} reviews)
               </span>
             </div>
           </div>
         </div>
+
+        {!phone.isInStock && (
+          <Badge className="text-xs bg-red-500 text-white">Out of Stock</Badge>
+        )}
       </div>
     </Card>
   );

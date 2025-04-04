@@ -8,45 +8,36 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function extractSearchParameters(message) {
+// Extract search parameters using OpenAI function calling
+async function extractSearchParameters(message: string) {
   const tools = [
     {
       type: "function",
       function: {
         name: "search_phones",
-        description: "Search for phones based on various criteria.",
+        description:
+          "Extracts search parameters from a natural language query.",
         parameters: {
           type: "object",
           properties: {
-            price_min: {
-              type: "number",
-              description: "Minimum price of the phone.",
-            },
-            price_max: {
-              type: "number",
-              description: "Maximum price of the phone.",
-            },
-            ram: {
+            price_min: { type: "number", description: "Minimum phone price." },
+            price_max: { type: "number", description: "Maximum phone price." },
+            ram: { type: "string", description: "RAM (e.g., '6GB', '8GB')." },
+            storage: {
               type: "string",
-              description: "The RAM of the phone (e.g., '8GB', '12 GB').",
+              description: "Storage (e.g., '128GB', '256GB').",
             },
-            os: {
+            brand: {
               type: "string",
-              description:
-                "The operating system of the phone (e.g., 'Android', 'iOS').",
-            },
-            color: {
-              type: "string",
-              description: "The color of the phone (e.g., 'Black', 'Blue').",
-            },
-            manufacturer: {
-              type: "string",
-              description:
-                "The manufacturer of the phone (e.g., 'Samsung', 'Apple').",
+              description: "Phone brand (e.g., 'Xiaomi', 'Samsung').",
             },
             rating_min: {
-              type: "string",
-              description: "minimum rating (e.g. 4, 4.5, 3 out of 5, 2/5)",
+              type: "number",
+              description: "Minimum rating (e.g., 4, 4.5).",
+            },
+            isInStock: {
+              type: "boolean",
+              description: "Whether the phone is in stock.",
             },
           },
           required: [],
@@ -54,85 +45,64 @@ async function extractSearchParameters(message) {
       },
     },
   ];
+
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
-        content:
-          "You are a helpful assistant that extracts search parameters for phones.",
+        content: "Extract structured search parameters for phone queries.",
       },
-      {
-        role: "user",
-        content: message,
-      },
+      { role: "user", content: message },
     ],
     tools: tools as any,
     tool_choice: "auto",
   });
 
-  const toolCalls = response.choices[0].message.tool_calls;
-
+  const toolCalls = response.choices[0]?.message?.tool_calls;
   if (toolCalls) {
     for (const toolCall of toolCalls) {
       if (toolCall.function.name === "search_phones") {
         try {
-          const argumentsParsed = JSON.parse(toolCall.function.arguments);
-          return argumentsParsed;
+          return JSON.parse(toolCall.function.arguments);
         } catch (error) {
-          console.error("Error parsing function arguments:", error);
+          console.error("Error parsing search parameters:", error);
           return {};
         }
       }
     }
   }
-
   return {};
 }
 
-async function searchPhones(filters) {
+// Search phones based on extracted filters
+async function searchPhones(filters: any) {
   const query: any = {};
 
-  if (filters.price_min) {
+  if (filters.price_min)
     query.price = { ...query.price, $gte: filters.price_min };
-  }
-  if (filters.price_max) {
+  if (filters.price_max)
     query.price = { ...query.price, $lte: filters.price_max };
-  }
-  if (filters.ram) {
-    query["technical_details.RAM"] = { $regex: new RegExp(filters.ram, "i") }; // Case-insensitive search
-  }
-  if (filters.os) {
-    query["technical_details.OS"] = { $regex: new RegExp(filters.os, "i") };
-  }
-  if (filters.color) {
-    query["technical_details.Colour"] = {
-      $regex: new RegExp(filters.color, "i"),
-    };
-  }
-  if (filters.manufacturer) {
-    query["technical_details.Manufacturer"] = {
-      $regex: new RegExp(filters.manufacturer, "i"),
-    };
-  }
-  if (filters.rating_min) {
-    query["rating"] = {
-      $regex: new RegExp(`^${filters.rating_min.split("/")[0]}`),
-      $options: "i",
-    };
-  }
+  if (filters.ram) query.ram = { $regex: new RegExp(filters.ram, "i") };
+  if (filters.storage)
+    query.storage = { $regex: new RegExp(filters.storage, "i") };
+  if (filters.brand) query.brand = { $regex: new RegExp(filters.brand, "i") };
+  if (filters.rating_min)
+    query.rating = { $regex: new RegExp(`^${filters.rating_min}`, "i") };
+  if (filters.isInStock !== undefined) query.isInStock = filters.isInStock;
+
+  console.log("Search query:", query);
 
   try {
-    // @ts-expect-error - We're not using all the fields from the model
-    const phones = await Phone.find(query).limit(5).exec(); // Limit to 5 results
-    return phones;
+    return await Phone.find(query).limit(5).exec(); // Limit results to 5
   } catch (e) {
-    console.log(e);
+    console.error("Error querying phones:", e);
     throw e;
   }
 }
 
-export async function POST(request) {
+// Handle search request
+export async function POST(request: Request) {
   try {
     await connectDB();
     const { message } = await request.json();
@@ -144,8 +114,12 @@ export async function POST(request) {
       );
     }
 
+    console.log("Received message:", message);
+
     const searchParams = await extractSearchParameters(message);
-    // @ts-expect-error - We're not using all the fields from the model
+
+    console.log("Extracted search parameters:", searchParams);
+
     const conversation = await Conversations.create({
       userMsg: message,
       filters: searchParams,
@@ -153,13 +127,15 @@ export async function POST(request) {
 
     const phones = await searchPhones(searchParams);
 
+    console.log("Found phones:", phones);
+
     return NextResponse.json({
       success: true,
       phones,
       conversationId: conversation._id,
     });
   } catch (error) {
-    console.error("Error during search:", error);
+    console.error("Search API Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

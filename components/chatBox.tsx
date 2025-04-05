@@ -148,10 +148,10 @@ const ChatInput: React.FC = () => {
 
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             {[
-              "Budget phones under ₹15,000",
-              "Best camera phone",
-              "iPhone alternatives",
-              "Gaming phones",
+              "Budget phones under ₹30,000",
+              "Best phones under ₹15,000",
+              "Top-rated phones with 5G",
+              "Most reviewed phones under ₹20,000",
             ].map((suggestion) => (
               <button
                 key={suggestion}

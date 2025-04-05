@@ -1,5 +1,6 @@
 import React from "react";
 import ChatInput from "@/components/chatBox";
+import { Carrot } from "lucide-react";
 
 const Index = () => {
   const currentYear = new Date().getFullYear();
@@ -8,8 +9,8 @@ const Index = () => {
       <header className="flex-none py-6 px-6 border-b border-slate-100">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="bg-primary text-white rounded-lg w-10 h-10 flex items-center justify-center text-lg font-bold">
-              SN
+            <span className=" rounded-lg w-10 h-10 border border-dashed flex items-center justify-center text-lg font-bold">
+              <Carrot />
             </span>
             <span className="font-medium text-lg">Shop Naturally</span>
           </div>

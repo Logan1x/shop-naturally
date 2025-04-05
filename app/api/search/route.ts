@@ -77,29 +77,68 @@ async function extractSearchParameters(message: string) {
 
 // Search phones based on extracted filters
 async function searchPhones(filters: any) {
-  const query: any = {};
+  const match: any = {};
 
   if (filters.price_min)
-    query.price = { ...query.price, $gte: filters.price_min };
+    match.price = { ...match.price, $gte: filters.price_min };
   if (filters.price_max)
-    query.price = { ...query.price, $lte: filters.price_max };
-  if (filters.ram) query.ram = { $regex: new RegExp(filters.ram, "i") };
+    match.price = { ...match.price, $lte: filters.price_max };
+  if (filters.ram) match.ram = { $regex: new RegExp(filters.ram, "i") };
   if (filters.storage)
-    query.storage = { $regex: new RegExp(filters.storage, "i") };
-  if (filters.brand) query.brand = { $regex: new RegExp(filters.brand, "i") };
+    match.storage = { $regex: new RegExp(filters.storage, "i") };
+  if (filters.brand) match.brand = { $regex: new RegExp(filters.brand, "i") };
   if (filters.rating_min)
-    query.ratingFloat = { ...query.ratingFloat, $gte: filters.rating_min };
-  if (filters.isInStock !== undefined) query.isInStock = filters.isInStock;
+    match.ratingFloat = { ...match.ratingFloat, $gte: filters.rating_min };
+  if (filters.isInStock !== undefined) match.isInStock = filters.isInStock;
+  match.bought = { $ne: "N/A" };
 
-  console.log("Search query:", query);
+  const priceMax = filters.price_max || 20000; // fallback in case not provided
 
   try {
-    // Sort by rating, reviews, and price
-    return await (Phone as any)
-      .find(query)
-      .sort({ ratingFloat: -1, reviews: -1, price: 1 })
-      .limit(5)
-      .exec(); // Limit results to 5
+    return await Phone.aggregate([
+      { $match: match },
+      {
+        $addFields: {
+          reviewScore: {
+            $cond: [
+              { $gt: ["$reviews", 0] },
+              {
+                $divide: [
+                  {
+                    $multiply: [
+                      "$ratingFloat",
+                      { $log10: { $add: ["$reviews", 1] } },
+                    ],
+                  },
+                  "$price",
+                ],
+              },
+              0,
+            ],
+          },
+          proximityBoost: {
+            $subtract: [
+              1,
+              {
+                $divide: [
+                  { $abs: { $subtract: ["$price", priceMax] } },
+                  priceMax,
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          finalScore: {
+            $multiply: ["$reviewScore", "$proximityBoost"],
+          },
+        },
+      },
+      { $sort: { finalScore: -1 } },
+      { $limit: 5 },
+    ]);
   } catch (e) {
     console.error("Error querying phones:", e);
     throw e;
@@ -125,14 +164,13 @@ export async function POST(request: Request) {
 
     console.log("Extracted search parameters:", searchParams);
 
+    // @ts-ignore
     const conversation = await Conversations.create({
       userMsg: message,
       filters: searchParams,
     });
 
     const phones = await searchPhones(searchParams);
-
-    console.log("Found phones:", phones);
 
     return NextResponse.json({
       success: true,

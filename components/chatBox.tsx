@@ -37,11 +37,6 @@ const ChatInput: React.FC = () => {
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      // toast({
-      //   title: "Error",
-      //   description: "Failed to search for phones. Please try again.",
-      //   variant: "destructive",
-      // });
       setResults(null);
     } finally {
       setIsLoading(false);
@@ -88,7 +83,7 @@ const ChatInput: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8">
+    <div className="w-full max-w-6xl mx-auto px-4 py-8 flex flex-col h-full">
       {showChat && (
         <div className="text-center mb-8 animate-fade-in">
           <span className="inline-block mb-2 py-1 px-3 rounded-full text-sm font-medium bg-primary/10 text-primary">
@@ -106,7 +101,13 @@ const ChatInput: React.FC = () => {
 
       {/* Chat Input */}
       {showChat ? (
-        <div className="max-w-3xl mx-auto">
+        <div
+          className={`max-w-3xl w-full mx-auto ${
+            window.innerWidth <= 768
+              ? "flex-grow flex flex-col justify-end mb-4"
+              : "mt-0 mb-auto"
+          }`}
+        >
           <div className="flex items-center gap-2 mb-4 text-muted-foreground text-sm">
             <Search size={16} />
             <span>
@@ -129,6 +130,7 @@ const ChatInput: React.FC = () => {
                 className="flex-1 resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-6 pr-14 max-h-[200px] text-base placeholder:text-muted-foreground/70 search-input"
                 disabled={isLoading}
                 autoFocus
+                style={{ minHeight: "80px" }}
               />
               <Button
                 type="submit"

@@ -9,43 +9,23 @@ const Index = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="bg-primary text-white rounded-lg w-10 h-10 flex items-center justify-center text-lg font-bold">
-              P
+              SN
             </span>
-            <span className="font-medium text-lg">PhoneSearch</span>
+            <span className="font-medium text-lg">Shop Naturally</span>
           </div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <a
-              href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Explore
-            </a>
-            <a
-              href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Compare
-            </a>
-            <a
-              href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Reviews
-            </a>
-          </nav>
         </div>
       </header>
 
-      <main className="relative grow">
+      <main className="relative grow flex flex-col">
         <ChatInput />
       </main>
 
-      <footer className="mt-20 py-8 border-t border-slate-200 flex-none">
+      <footer className="mt-auto py-8 border-t border-slate-200 flex-none">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              © {currentYear} PhoneSearch. All rights reserved. Find your
-              perfect phone.
+              © {currentYear} Shop Naturally. All rights reserved. Find your
+              perfect smartphone.
             </p>
           </div>
         </div>

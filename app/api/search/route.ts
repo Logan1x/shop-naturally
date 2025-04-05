@@ -164,6 +164,7 @@ export async function POST(request: Request) {
 
     console.log("Extracted search parameters:", searchParams);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const conversation = await Conversations.create({
       userMsg: message,

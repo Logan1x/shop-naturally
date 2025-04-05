@@ -102,11 +102,10 @@ const ChatInput: React.FC = () => {
       {/* Chat Input */}
       {showChat ? (
         <div
-          className={`max-w-3xl w-full mx-auto ${
-            window.innerWidth <= 768
-              ? "flex-grow flex flex-col justify-end mb-4"
-              : "mt-0 mb-auto"
-          }`}
+          className="max-w-3xl w-full mx-auto 
+                   mb-4 justify-end 
+                   flex-grow flex flex-col 
+                   md:mb-auto md:justify-start"
         >
           <div className="flex items-center gap-2 mb-4 text-muted-foreground text-sm">
             <Search size={16} />

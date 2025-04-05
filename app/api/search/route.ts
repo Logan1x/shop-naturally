@@ -88,13 +88,18 @@ async function searchPhones(filters: any) {
     query.storage = { $regex: new RegExp(filters.storage, "i") };
   if (filters.brand) query.brand = { $regex: new RegExp(filters.brand, "i") };
   if (filters.rating_min)
-    query.rating = { $regex: new RegExp(`^${filters.rating_min}`, "i") };
+    query.ratingFloat = { ...query.ratingFloat, $gte: filters.rating_min };
   if (filters.isInStock !== undefined) query.isInStock = filters.isInStock;
 
   console.log("Search query:", query);
 
   try {
-    return await Phone.find(query).limit(5).exec(); // Limit results to 5
+    // Sort by rating, reviews, and price
+    return await (Phone as any)
+      .find(query)
+      .sort({ ratingFloat: -1, reviews: -1, price: 1 })
+      .limit(5)
+      .exec(); // Limit results to 5
   } catch (e) {
     console.error("Error querying phones:", e);
     throw e;

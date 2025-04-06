@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/rateLimiter";
 import OpenAI from "openai";
 import Phone from "@/lib/models/phone";
 import Conversations from "@/lib/models/conversations";
@@ -225,6 +226,20 @@ async function searchPhones(filters: any) {
 
 // Handle search request
 export async function POST(request: Request) {
+  const ip =
+    request.headers.get("x-forwarded-for") || (request as any).ip || "unknown";
+
+  const { allowed, retryAfterSeconds } = checkRateLimit(ip);
+
+  if (!allowed) {
+    return new NextResponse("Too Many Requests", {
+      status: 429,
+      headers: {
+        "Retry-After": retryAfterSeconds.toString(),
+      },
+    });
+  }
+
   try {
     await connectDB();
     const { message } = await request.json();

@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import PhoneCard from "./phoneCard";
@@ -57,11 +58,35 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <motion.div
+        className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.15,
+            },
+          },
+        }}
+        initial="hidden"
+        animate="visible"
+      >
         {results.map((phone, index) => (
-          <PhoneCard key={index} phone={phone} index={index} />
+          <motion.div
+            key={index}
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.5, ease: "easeOut" },
+              },
+            }}
+          >
+            <PhoneCard phone={phone} index={index} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* New search button at the bottom */}
       <div className="flex justify-center mt-8 sticky bottom-4">

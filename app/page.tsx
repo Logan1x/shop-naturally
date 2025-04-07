@@ -1,10 +1,17 @@
+"use client";
 import React from "react";
 import ChatInput from "@/components/chatBox";
 import { Carrot } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex flex-col">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex flex-col"
+    >
       <header className="flex-none py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -44,7 +51,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 };
 

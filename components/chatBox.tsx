@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Send, Smartphone, Loader2 } from "lucide-react";
@@ -100,22 +101,43 @@ const ChatInput: React.FC = () => {
                    flex-grow flex flex-col
                    md:mb-auto md:justify-start"
         >
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
+          <motion.div
+            className="flex flex-wrap justify-center gap-2 mb-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1,
+                  delayChildren: 0.2,
+                },
+              },
+              hidden: {},
+            }}
+          >
             {[
               "phones with 64gb storage",
               "Best phones under ₹15,000",
               "Top-rated phones with 5G",
               "Most reviewed phones under ₹20,000",
             ].map((suggestion) => (
-              <button
+              <motion.button
                 key={suggestion}
                 onClick={() => setInput(suggestion)}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.95 },
+                  visible: {
+                    opacity: 1,
+                    scale: 1,
+                    transition: { duration: 0.3, ease: "easeOut" },
+                  },
+                }}
                 className="px-3 py-1.5 rounded-full text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-secondary-foreground transition-colors"
               >
                 {suggestion}
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
 
           <form
             onSubmit={handleSubmit}

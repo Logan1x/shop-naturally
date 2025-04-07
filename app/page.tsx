@@ -3,7 +3,6 @@ import ChatInput from "@/components/chatBox";
 import { Carrot } from "lucide-react";
 
 const Index = () => {
-  const currentYear = new Date().getFullYear();
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex flex-col">
       <header className="flex-none py-6 px-6">
@@ -28,12 +27,19 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="mt-auto py-8 flex-none">
-        <div className="max-w-6xl mx-auto px-6">
+      <footer className="mt-auto py-4 flex-none block z-50 relative md:static md:border md:border-slate-200">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              © {currentYear} Shop Naturally. All rights reserved. Find your
-              perfect smartphone.
+              Got feedback?
+              <a
+                href="https://cal.com/khushal"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline ml-1"
+              >
+                Book a chat
+              </a>
             </p>
           </div>
         </div>

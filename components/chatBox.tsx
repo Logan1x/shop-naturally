@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Send, Search, Smartphone, Loader2 } from "lucide-react";
+import { Send, Smartphone, Loader2 } from "lucide-react";
 import { PLACEHOLDER_TEXTS } from "@/static/constants";
 import PhoneResults from "./phoneResults";
 
@@ -86,16 +86,9 @@ const ChatInput: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto px-4 py-8 flex flex-col h-full">
       {showChat && (
         <div className="text-center mb-8 animate-fade-in">
-          <span className="inline-block mb-2 py-1 px-3 rounded-full text-sm font-medium bg-primary/10 text-primary">
-            Phone Finder
-          </span>
-          <h1 className="text-4xl font-bold mb-4 tracking-tight">
-            Find your perfect smartphone
+          <h1 className="text-2xl font-semibold mb-4 tracking-tight">
+            Tell us what you want in a phone
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
-            Tell us what you&#39;re looking for in a phone, and we&#39;ll search
-            through thousands of options to find your perfect match.
-          </p>
         </div>
       )}
 
@@ -107,16 +100,9 @@ const ChatInput: React.FC = () => {
                    flex-grow flex flex-col
                    md:mb-auto md:justify-start"
         >
-          <div className="flex items-center gap-2 mb-4 text-muted-foreground text-sm">
-            <Search size={16} />
-            <span>
-              Try asking for specific features, price range, or brands
-            </span>
-          </div>
-
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             {[
-              "Budget phones under ₹30,000",
+              "phones with 64gb storage",
               "Best phones under ₹15,000",
               "Top-rated phones with 5G",
               "Most reviewed phones under ₹20,000",
@@ -146,7 +132,7 @@ const ChatInput: React.FC = () => {
                 className="flex-1 resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-6 pr-14 max-h-[200px] text-base placeholder:text-muted-foreground/70 search-input"
                 disabled={isLoading}
                 autoFocus
-                style={{ minHeight: "80px" }}
+                style={{ minHeight: "120px" }}
               />
               <Button
                 type="submit"

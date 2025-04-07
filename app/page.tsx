@@ -10,7 +10,7 @@ const Index = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="min-h-[100dvh] bg-gradient-to-b from-white to-slate-50 flex flex-col overflow-x-hidden"
+      className="min-h-[100dvh]  flex flex-col overflow-x-hidden"
     >
       <header className="flex-none py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -23,10 +23,10 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="relative grow flex flex-col pb-24 md:pb-0">
+      <main className="relative grow flex flex-col md:pb-0">
         <div
           className="
-            fixed bottom-0 left-0 w-full p-4 bg-white
+            left-0 w-full p-4 bg-white
             md:static md:flex md:items-center md:justify-center md:p-0 md:bg-transparent
           "
         >

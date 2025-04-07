@@ -85,10 +85,10 @@ const ChatInput: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8 flex flex-col h-full">
+    <div className="w-full max-w-6xl mx-auto px-4 flex flex-col h-full">
       {showChat && (
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-2xl font-semibold mb-4 tracking-tight">
+        <div className="text-center mb-2 mt-64 lg:mt-48 px-4 animate-fade-in">
+          <h1 className="text-3xl lg:text-2xl font-semibold mb-4 tracking-tight">
             Tell us what you want in a phone
           </h1>
         </div>
@@ -97,10 +97,15 @@ const ChatInput: React.FC = () => {
       {/* Chat Input */}
       {showChat ? (
         <div
-          className="max-w-3xl w-full mx-auto
-                   mb-4 justify-end
+          className={`max-w-3xl w-full mx-auto
+                   mb-10 justify-end
                    flex-grow flex flex-col
-                   md:mb-auto md:justify-start"
+                   md:mb-auto md:justify-start
+                   ${
+                     showChat
+                       ? "fixed bottom-0 left-0 right-0 z-50 bg-white p-4 md:static"
+                       : ""
+                   }`}
         >
           <motion.div
             className="flex flex-wrap justify-center gap-2 mb-4"

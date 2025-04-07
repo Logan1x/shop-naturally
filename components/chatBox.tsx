@@ -102,9 +102,9 @@ const ChatInput: React.FC = () => {
       {/* Chat Input */}
       {showChat ? (
         <div
-          className="max-w-3xl w-full mx-auto 
-                   mb-4 justify-end 
-                   flex-grow flex flex-col 
+          className="max-w-3xl w-full mx-auto
+                   mb-4 justify-end
+                   flex-grow flex flex-col
                    md:mb-auto md:justify-start"
         >
           <div className="flex items-center gap-2 mb-4 text-muted-foreground text-sm">
@@ -112,6 +112,23 @@ const ChatInput: React.FC = () => {
             <span>
               Try asking for specific features, price range, or brands
             </span>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
+            {[
+              "Budget phones under ₹30,000",
+              "Best phones under ₹15,000",
+              "Top-rated phones with 5G",
+              "Most reviewed phones under ₹20,000",
+            ].map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => setInput(suggestion)}
+                className="px-3 py-1.5 rounded-full text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-secondary-foreground transition-colors"
+              >
+                {suggestion}
+              </button>
+            ))}
           </div>
 
           <form
@@ -145,23 +162,6 @@ const ChatInput: React.FC = () => {
               </Button>
             </div>
           </form>
-
-          <div className="flex flex-wrap justify-center gap-2 mt-4">
-            {[
-              "Budget phones under ₹30,000",
-              "Best phones under ₹15,000",
-              "Top-rated phones with 5G",
-              "Most reviewed phones under ₹20,000",
-            ].map((suggestion) => (
-              <button
-                key={suggestion}
-                onClick={() => setInput(suggestion)}
-                className="px-3 py-1.5 rounded-full text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-secondary-foreground transition-colors"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
         </div>
       ) : (
         <PhoneResults

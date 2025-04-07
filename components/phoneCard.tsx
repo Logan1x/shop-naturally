@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, ExternalLink, ShoppingBag } from "lucide-react";
+import { Star, ExternalLink, ShoppingBag, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -89,6 +89,9 @@ const PhoneCard: React.FC<PhoneCardProps> = ({ phone }) => {
 
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <ExternalLink size={14} className="text-muted-foreground" />
+      </div>
+      <div className="absolute bottom-2 right-2 text-muted-foreground opacity-80 pointer-events-none">
+        <ArrowUpRight size={16} />
       </div>
     </Card>
   );

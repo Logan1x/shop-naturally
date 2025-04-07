@@ -78,7 +78,7 @@ const ChatInput: React.FC = () => {
       setPlaceholderIndex(
         (prevIndex) => (prevIndex + 1) % PLACEHOLDER_TEXTS.length
       );
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -156,7 +156,7 @@ const ChatInput: React.FC = () => {
               <button
                 key={suggestion}
                 onClick={() => setInput(suggestion)}
-                className="px-3 py-1.5 rounded-full text-sm bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
+                className="px-3 py-1.5 rounded-full text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-secondary-foreground transition-colors"
               >
                 {suggestion}
               </button>

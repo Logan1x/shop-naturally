@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import ChatInput from "@/components/chatBox";
-import { Carrot } from "lucide-react";
+import LogoIcon from "@/components/LogoIcon";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -15,8 +15,8 @@ const Index = () => {
       <header className="flex-none py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className=" rounded-lg w-10 h-10 border border-dashed flex items-center justify-center text-lg font-bold">
-              <Carrot />
+            <span className="rounded-lg w-10 h-10 border border-dashed flex items-center justify-center text-lg font-bold overflow-hidden">
+              <LogoIcon />
             </span>
             <span className="font-medium text-lg">Shop Naturally</span>
           </div>

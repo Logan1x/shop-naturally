@@ -10,7 +10,7 @@ const Index = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="min-h-screen bg-gradient-to-b from-white to-slate-50 flex flex-col"
+      className="min-h-[100dvh] bg-gradient-to-b from-white to-slate-50 flex flex-col overflow-x-hidden"
     >
       <header className="flex-none py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">

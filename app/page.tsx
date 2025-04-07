@@ -27,7 +27,7 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="mt-auto py-4 flex-none block z-50 relative md:static md:border md:border-slate-200">
+      <footer className="mt-auto py-4 flex-none block z-50 relative md:static md:border md:border-dashed ">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center text-sm text-muted-foreground">
             <p>

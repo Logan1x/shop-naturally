@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import ChatInput from "@/components/chatBox";
-import LogoIcon from "@/components/LogoIcon";
+import { LogoIcon } from "@/components/icons";
 import { motion } from "framer-motion";
 
 const Index = () => {

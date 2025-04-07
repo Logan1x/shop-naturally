@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import { WandSparklesIcon } from "./icons";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Send, Smartphone, Loader2 } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { PLACEHOLDER_TEXTS } from "@/static/constants";
 import PhoneResults from "./phoneResults";
 
@@ -183,7 +184,11 @@ const ChatInput: React.FC = () => {
       {isLoading && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="text-center animate-pulse-slow">
-            <Smartphone size={48} className="mx-auto text-primary mb-4" />
+            <WandSparklesIcon
+              className="mx-auto text-primary mb-4"
+              width={48}
+              height={48}
+            />
             <p className="text-lg font-medium">Searching phones...</p>
             <p className="text-muted-foreground">
               Finding the best matches for you

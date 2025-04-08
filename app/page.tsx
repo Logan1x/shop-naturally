@@ -22,20 +22,20 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="flex-grow w-full overflow-y-auto">
+      <main className="flex-grow w-full flex overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="w-full h-full flex flex-col"
         >
-          <div className="w-full flex-grow flex flex-col">
+          <div className="w-full h-full flex flex-col">
             <ChatInput />
           </div>
         </motion.div>
       </main>
 
-      <footer className="flex-none py-2 lg:py-4 z-10 lg:border-t">
+      <footer className="flex-none py-4  z-10 lg:border-t">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center text-xs text-muted-foreground">
             <p>

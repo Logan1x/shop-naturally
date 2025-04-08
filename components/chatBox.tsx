@@ -87,14 +87,14 @@ const ChatInput: React.FC = () => {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 flex flex-col h-full">
       {showChat ? (
-        <>
-          <div className="text-center mb-2 mt-80 lg:mt-48 px-4 animate-fade-in lg:scale-[1.1]">
+        <div className="mt-30 sm:mt-48 lg:mt-40 flex flex-col items-center justify-end h-full py-4">
+          <div className="text-center px-4 animate-fade-in lg:scale-[1.1] mt-10">
             <h1 className="text-3xl font-semibold mb-6 tracking-tight">
               Tell us what you want in a phone
             </h1>
           </div>
 
-          <div className="lg:scale-[1.05] max-w-3xl w-full mx-auto mb-10 justify-end flex-grow flex flex-col md:mb-auto md:justify-start">
+          <div className="lg:scale-[1.05] max-w-3xl w-full mx-auto flex-1 flex flex-col justify-end">
             <motion.div
               className="flex flex-wrap justify-center gap-2 mb-4"
               initial="hidden"
@@ -110,9 +110,9 @@ const ChatInput: React.FC = () => {
               }}
             >
               {[
-                "phones with 64gb storage",
                 "Best phones under ₹15,000",
-                "Top-rated phones with 5G",
+                "phones with 64gb storage",
+                "Top rated 5G phones",
                 "Most reviewed phones under ₹20,000",
               ].map((suggestion) => (
                 <motion.button
@@ -135,7 +135,7 @@ const ChatInput: React.FC = () => {
 
             <form
               onSubmit={handleSubmit}
-              className="relative w-full bg-white rounded-2xl shadow-sm border transition-all duration-300 ease-in-out"
+              className="relative w-full bg-white rounded-2xl shadow-sm border transition-all duration-300 ease-in-out mb-4"
             >
               <div className="flex items-end w-full">
                 <textarea
@@ -165,7 +165,7 @@ const ChatInput: React.FC = () => {
               </div>
             </form>
           </div>
-        </>
+        </div>
       ) : (
         <PhoneResults
           results={results}

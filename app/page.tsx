@@ -6,13 +6,8 @@ import { motion } from "framer-motion";
 
 const Index = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="min-h-[100dvh]  flex flex-col overflow-x-hidden"
-    >
-      <header className="flex-none py-6 px-6">
+    <div className="min-h-[100dvh] flex flex-col">
+      <header className="flex-none py-6 px-6 z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="rounded-lg w-10 h-10 border border-dashed flex items-center justify-center text-lg font-bold overflow-hidden">
@@ -23,20 +18,22 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="relative grow flex flex-col md:pb-0">
-        <div
-          className="
-            left-0 w-full p-4 bg-white
-            md:static md:flex md:items-center md:justify-center md:p-0 md:bg-transparent
-          "
+      <main className="flex-grow w-full overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full h-full flex flex-col"
         >
-          <ChatInput />
-        </div>
+          <div className="w-full flex-grow flex flex-col">
+            <ChatInput />
+          </div>
+        </motion.div>
       </main>
 
-      <footer className="mt-auto py-4 flex-none block z-50 relative md:static md:border md:border-dashed ">
+      <footer className="flex-none py-2 lg:py-4 z-10 lg:border-t">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-xs text-muted-foreground">
             <p>
               Got feedback?
               <a
@@ -51,7 +48,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </motion.div>
+    </div>
   );
 };
 

@@ -86,97 +86,86 @@ const ChatInput: React.FC = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 flex flex-col h-full">
-      {showChat && (
-        <div className="text-center mb-2 mt-64 lg:mt-48 px-4 animate-fade-in">
-          <h1 className="text-3xl lg:text-2xl font-semibold mb-4 tracking-tight">
-            Tell us what you want in a phone
-          </h1>
-        </div>
-      )}
-
-      {/* Chat Input */}
       {showChat ? (
-        <div
-          className={`max-w-3xl w-full mx-auto
-                   mb-10 justify-end
-                   flex-grow flex flex-col
-                   md:mb-auto md:justify-start
-                   ${
-                     showChat
-                       ? "fixed bottom-0 left-0 right-0 z-50 bg-white p-4 md:static"
-                       : ""
-                   }`}
-        >
-          <motion.div
-            className="flex flex-wrap justify-center gap-2 mb-4"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: {
-                transition: {
-                  staggerChildren: 0.1,
-                  delayChildren: 0.2,
-                },
-              },
-              hidden: {},
-            }}
-          >
-            {[
-              "phones with 64gb storage",
-              "Best phones under ₹15,000",
-              "Top-rated phones with 5G",
-              "Most reviewed phones under ₹20,000",
-            ].map((suggestion) => (
-              <motion.button
-                key={suggestion}
-                onClick={() => setInput(suggestion)}
-                variants={{
-                  hidden: { opacity: 0, scale: 0.95 },
-                  visible: {
-                    opacity: 1,
-                    scale: 1,
-                    transition: { duration: 0.3, ease: "easeOut" },
-                  },
-                }}
-                className="px-3 py-1.5 rounded-full text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-secondary-foreground transition-colors"
-              >
-                {suggestion}
-              </motion.button>
-            ))}
-          </motion.div>
+        <>
+          <div className="text-center mb-2 mt-80 lg:mt-48 px-4 animate-fade-in">
+            <h1 className="text-3xl lg:text-2xl font-semibold mb-4 tracking-tight">
+              Tell us what you want in a phone
+            </h1>
+          </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="relative w-full bg-white rounded-2xl shadow-sm border transition-all duration-300 ease-in-out"
-          >
-            <div className="flex items-end w-full">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={PLACEHOLDER_TEXTS[placeholderIndex]}
-                rows={1}
-                className="flex-1 resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-6 pr-14 max-h-[200px] text-base placeholder:text-muted-foreground/70 search-input"
-                disabled={isLoading}
-                autoFocus
-                style={{ minHeight: "120px" }}
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="absolute right-4 bottom-4 w-10 h-10 rounded-full transition-all"
-                disabled={!input.trim() || isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  <Send size={18} />
-                )}
-              </Button>
-            </div>
-          </form>
-        </div>
+          <div className="max-w-3xl w-full mx-auto mb-10 justify-end flex-grow flex flex-col md:mb-auto md:justify-start">
+            <motion.div
+              className="flex flex-wrap justify-center gap-2 mb-4"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.1,
+                    delayChildren: 0.2,
+                  },
+                },
+                hidden: {},
+              }}
+            >
+              {[
+                "phones with 64gb storage",
+                "Best phones under ₹15,000",
+                "Top-rated phones with 5G",
+                "Most reviewed phones under ₹20,000",
+              ].map((suggestion) => (
+                <motion.button
+                  key={suggestion}
+                  onClick={() => setInput(suggestion)}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.95 },
+                    visible: {
+                      opacity: 1,
+                      scale: 1,
+                      transition: { duration: 0.3, ease: "easeOut" },
+                    },
+                  }}
+                  className="px-3 py-1.5 rounded-full text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-secondary-foreground transition-colors"
+                >
+                  {suggestion}
+                </motion.button>
+              ))}
+            </motion.div>
+
+            <form
+              onSubmit={handleSubmit}
+              className="relative w-full bg-white rounded-2xl shadow-sm border transition-all duration-300 ease-in-out"
+            >
+              <div className="flex items-end w-full">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={PLACEHOLDER_TEXTS[placeholderIndex]}
+                  rows={1}
+                  className="flex-1 resize-none bg-transparent border-none focus:outline-none focus:ring-0 p-6 pr-14 max-h-[200px] text-base placeholder:text-muted-foreground/70 search-input"
+                  disabled={isLoading}
+                  autoFocus
+                  style={{ minHeight: "120px" }}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  className="absolute right-4 bottom-4 w-10 h-10 rounded-full transition-all"
+                  disabled={!input.trim() || isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Send size={18} />
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </>
       ) : (
         <PhoneResults
           results={results}

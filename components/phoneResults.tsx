@@ -61,7 +61,7 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
         </div>
 
         <motion.div
-          className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 pb-32"
+          className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 pb-24"
           variants={{
             hidden: {},
             visible: {

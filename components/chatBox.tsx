@@ -88,13 +88,13 @@ const ChatInput: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto px-4 flex flex-col h-full">
       {showChat ? (
         <>
-          <div className="text-center mb-2 mt-80 lg:mt-48 px-4 animate-fade-in">
-            <h1 className="text-3xl lg:text-2xl font-semibold mb-4 tracking-tight">
+          <div className="text-center mb-2 mt-80 lg:mt-48 px-4 animate-fade-in lg:scale-[1.1]">
+            <h1 className="text-3xl font-semibold mb-6 tracking-tight">
               Tell us what you want in a phone
             </h1>
           </div>
 
-          <div className="max-w-3xl w-full mx-auto mb-10 justify-end flex-grow flex flex-col md:mb-auto md:justify-start">
+          <div className="lg:scale-[1.05] max-w-3xl w-full mx-auto mb-10 justify-end flex-grow flex flex-col md:mb-auto md:justify-start">
             <motion.div
               className="flex flex-wrap justify-center gap-2 mb-4"
               initial="hidden"

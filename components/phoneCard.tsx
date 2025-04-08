@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, ExternalLink, ShoppingBag, ArrowUpRight } from "lucide-react";
+import { Star, ShoppingBag, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 

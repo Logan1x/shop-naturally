@@ -11,7 +11,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Shop Naturally",
-  description: "A natural language search engine for smartphones",
+  description: "Like asking a friend which phone to buy",
 };
 
 export default function RootLayout({

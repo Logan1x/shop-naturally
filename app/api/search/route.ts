@@ -3,7 +3,6 @@ import { checkRateLimit } from "@/lib/rateLimiter";
 import Conversations from "@/lib/models/conversations";
 import connectDB from "@/lib/db";
 import { extractSearchParameters } from "@/lib/search/extractSearchParameters";
-import { searchPhones } from "@/lib/search/searchPhones";
 
 // Handle search request
 export async function POST(request: Request) {

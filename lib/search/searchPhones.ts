@@ -9,9 +9,17 @@ export async function searchPhones(filters: any) {
     match.price = { ...match.price, $gte: filters.price_min };
   if (filters.price_max)
     match.price = { ...match.price, $lte: filters.price_max };
-  if (filters.ram) match.ram = { $regex: new RegExp(filters.ram, "i") };
-  if (filters.storage)
-    match.storage = { $regex: new RegExp(filters.storage, "i") };
+  if (filters.ram_min !== undefined)
+    match.ram = { ...match.ram, $gte: filters.ram_min };
+  if (filters.ram_max !== undefined)
+    match.ram = { ...match.ram, $lte: filters.ram_max };
+  if (filters.ram !== undefined) match.ram = filters.ram;
+
+  if (filters.storage_min !== undefined)
+    match.storage = { ...match.storage, $gte: filters.storage_min };
+  if (filters.storage_max !== undefined)
+    match.storage = { ...match.storage, $lte: filters.storage_max };
+  if (filters.storage !== undefined) match.storage = filters.storage;
   if (filters.brand) match.brand = { $regex: new RegExp(filters.brand, "i") };
   if (filters.rating_min)
     match.ratingFloat = { ...match.ratingFloat, $gte: filters.rating_min };
@@ -33,21 +41,9 @@ export async function searchPhones(filters: any) {
     };
   }
 
-  // Popularity filter (handling "K+" format)
-  match.bought = { $ne: "N/A" };
-  if (filters.popularity_min) {
-    const popularityNum = parseInt(
-      filters.popularity_min.replace(/K\+/i, "000").replace(/\+/, "")
-    );
-    if (!isNaN(popularityNum)) {
-      // This is a simplification - may need adjustment based on exact format
-      match.bought = {
-        $regex: new RegExp(
-          `(${popularityNum}\\+|\\d*[${popularityNum}-9]K\\+)`,
-          "i"
-        ),
-      };
-    }
+  // Popularity filter (bought is now a number)
+  if (filters.popularity_min !== undefined) {
+    match.bought = { ...match.bought, $gte: filters.popularity_min };
   }
 
   // Simplified recommendation logic
@@ -57,15 +53,17 @@ export async function searchPhones(filters: any) {
     match.price = { $gte: minPrice, $lte: filters.price_max };
   }
 
+  console.log({ match });
+
   try {
     return await Phone.aggregate([
       { $match: match },
       {
         $sort: {
-          ram: -1, // Maximize RAM
           storage: -1, // Then maximize storage
-          reviews: -1, // Then most reviews
+          ram: -1, // Maximize RAM
           bought: -1, // Then most bought
+          reviews: -1, // Then most reviews
         },
       },
       { $limit: 8 },

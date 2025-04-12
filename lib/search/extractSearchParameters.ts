@@ -26,10 +26,10 @@ export async function extractSearchParameters(message: string) {
               description: "Minimum phone price. it is around 2000",
             },
             price_max: { type: "number", description: "Maximum phone price." },
-            ram: { type: "string", description: "RAM (e.g., '6GB', '8GB')." },
+            ram: { type: "number", description: "RAM in GB (e.g., 6, 8)." },
             storage: {
-              type: "string",
-              description: "Storage (e.g., '128GB', '256GB').",
+              type: "number",
+              description: "Storage in GB (e.g., 128, 256).",
             },
             brand: {
               type: "string",
@@ -44,8 +44,8 @@ export async function extractSearchParameters(message: string) {
               description: "Whether the phone is in stock.",
             },
             popularity_min: {
-              type: "string",
-              description: "Minimum popularity threshold (e.g., '1K+', '5K+').",
+              type: "number",
+              description: "Minimum popularity threshold (e.g., 1000 for 1K+).",
             },
             reviews_min: {
               type: "number",

@@ -5,21 +5,32 @@ export async function searchPhones(filters: any) {
   const match: any = {};
 
   // Basic filters
-  if (filters.price_min)
-    match.price = { ...match.price, $gte: filters.price_min };
-  if (filters.price_max)
-    match.price = { ...match.price, $lte: filters.price_max };
-  if (filters.ram_min !== undefined)
-    match.ram = { ...match.ram, $gte: filters.ram_min };
-  if (filters.ram_max !== undefined)
-    match.ram = { ...match.ram, $lte: filters.ram_max };
-  if (filters.ram !== undefined) match.ram = filters.ram;
 
-  if (filters.storage_min !== undefined)
-    match.storage = { ...match.storage, $gte: filters.storage_min };
-  if (filters.storage_max !== undefined)
-    match.storage = { ...match.storage, $lte: filters.storage_max };
-  if (filters.storage !== undefined) match.storage = filters.storage;
+  // Price
+  if (filters.price_min !== undefined)
+    match.price = { ...match.price, $gte: filters.price_min };
+  if (filters.price_max !== undefined)
+    match.price = { ...match.price, $lte: filters.price_max };
+
+  // RAM: exact value takes precedence over min/max
+  if (filters.ram !== undefined) {
+    match.ram = filters.ram;
+  } else {
+    if (filters.ram_min !== undefined)
+      match.ram = { ...match.ram, $gte: filters.ram_min };
+    if (filters.ram_max !== undefined)
+      match.ram = { ...match.ram, $lte: filters.ram_max };
+  }
+
+  // Storage: exact value takes precedence over min/max
+  if (filters.storage !== undefined) {
+    match.storage = filters.storage;
+  } else {
+    if (filters.storage_min !== undefined)
+      match.storage = { ...match.storage, $gte: filters.storage_min };
+    if (filters.storage_max !== undefined)
+      match.storage = { ...match.storage, $lte: filters.storage_max };
+  }
   if (filters.brand) match.brand = { $regex: new RegExp(filters.brand, "i") };
   if (filters.rating_min)
     match.ratingFloat = { ...match.ratingFloat, $gte: filters.rating_min };
@@ -49,7 +60,8 @@ export async function searchPhones(filters: any) {
   // Simplified recommendation logic
   // If price_max is specified, filter to [price_max - 10000, price_max]
   if (filters.price_max) {
-    const minPrice = Math.max(0, filters.price_max - 10000);
+    const minPrice =
+      filters.price_min || Math.max(0, filters.price_max - 10000);
     match.price = { $gte: minPrice, $lte: filters.price_max };
   }
 

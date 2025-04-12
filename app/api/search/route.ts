@@ -36,13 +36,13 @@ export async function POST(request: Request) {
 
     // List of special queries and their corresponding filters
     const specialQueries: { [key: string]: any } = {
-      "best phones under ₹15,000": { price_max: 15000, sort_by: "reviews" },
-      "phones with 64gb storage": { storage: "64GB", sort_by: "reviews" },
-      "top rated 5g phones": { has_feature: "5G", sort_by: "reviews" },
+      "best phones under ₹15,000": { price_max: 15000, price_min: 10000 },
+      "phones with 64gb storage": { storage: 64 },
+      "top rated 5g phones": { has_feature: "5G", sort_by: "rating" },
       "most reviewed phones under ₹20,000": {
         price_max: 20000,
-        price_min: 11000,
-        sort_by: "reviews",
+        reviews_min: 1,
+        sort_by: "popularity",
       },
     };
 

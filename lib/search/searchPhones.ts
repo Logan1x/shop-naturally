@@ -50,53 +50,24 @@ export async function searchPhones(filters: any) {
     }
   }
 
-  const priceMax = filters.price_max || 20000; // fallback in case not provided
+  // Simplified recommendation logic
+  // If price_max is specified, filter to [price_max - 10000, price_max]
+  if (filters.price_max) {
+    const minPrice = Math.max(0, filters.price_max - 10000);
+    match.price = { $gte: minPrice, $lte: filters.price_max };
+  }
 
   try {
     return await Phone.aggregate([
       { $match: match },
       {
-        $addFields: {
-          reviewScore: {
-            $cond: [
-              { $gt: ["$reviews", 0] },
-              {
-                $divide: [
-                  {
-                    $multiply: [
-                      "$ratingFloat",
-                      { $log10: { $add: ["$reviews", 1] } },
-                    ],
-                  },
-                  "$price",
-                ],
-              },
-              0,
-            ],
-          },
-          // Improved proximity calculation
-          priceProximity: {
-            $exp: {
-              $multiply: [
-                -0.00005, // This controls how quickly the score drops as price differs
-                { $pow: [{ $subtract: ["$price", priceMax] }, 2] },
-              ],
-            },
-          },
+        $sort: {
+          ram: -1, // Maximize RAM
+          storage: -1, // Then maximize storage
+          reviews: -1, // Then most reviews
+          bought: -1, // Then most bought
         },
       },
-      {
-        $addFields: {
-          // Combine scores with more emphasis on price proximity
-          finalScore: {
-            $multiply: [
-              "$reviewScore",
-              { $pow: ["$priceProximity", 2] }, // Squaring gives even more weight to price
-            ],
-          },
-        },
-      },
-      { $sort: { finalScore: -1 } },
       { $limit: 8 },
     ]);
   } catch (e) {

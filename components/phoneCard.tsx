@@ -7,13 +7,13 @@ interface PhoneCardProps {
   phone: {
     name: string;
     brand: string;
-    storage: string;
-    ram: string;
+    storage: number;
+    ram: number;
     price: number;
     reviews: number;
     ratingFloat: number;
     hasGFiveG?: boolean;
-    bought?: string;
+    bought?: number;
     productUrl?: string;
   };
   index: number;
@@ -44,20 +44,20 @@ const PhoneCard: React.FC<PhoneCardProps> = ({ phone }) => {
         </div>
 
         <div className="flex gap-2 mt-3">
-          {phone.ram && (
+          {typeof phone.ram === "number" && (
             <Badge
               variant="outline"
               className="bg-secondary border-0 rounded-md"
             >
-              {phone.ram}
+              {phone.ram}GB
             </Badge>
           )}
-          {phone.storage && (
+          {typeof phone.storage === "number" && (
             <Badge
               variant="outline"
               className="bg-secondary border-0 rounded-md"
             >
-              {phone.storage}
+              {phone.storage}GB
             </Badge>
           )}
           {phone.hasGFiveG && (
@@ -79,10 +79,12 @@ const PhoneCard: React.FC<PhoneCardProps> = ({ phone }) => {
           </div>
         </div>
 
-        {phone.bought !== "N/A" && (
+        {typeof phone.bought === "number" && (
           <div className="flex items-center mt-2 text-xs font-medium text-green-600 space-x-1">
             <ShoppingBag size={12} className="shrink-0" />
-            <span>{phone.bought}</span>
+            <span>
+              {phone.bought.toLocaleString("en-IN")} bought in past month
+            </span>
           </div>
         )}
       </div>

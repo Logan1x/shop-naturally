@@ -19,7 +19,7 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
   message,
 }) => {
   const [sortField, setSortField] = React.useState<
-    null | "price" | "storage" | "reviews"
+    null | "price" | "ram" | "reviews"
   >(null);
   const [sortOrder, setSortOrder] = React.useState<null | "asc" | "desc">(null);
 
@@ -42,7 +42,7 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
   const sortedResults = getSortedResults();
 
   // Helper for cycling sort state
-  const handleSortClick = (field: "price" | "storage" | "reviews") => {
+  const handleSortClick = (field: "price" | "ram" | "reviews") => {
     if (sortField !== field) {
       setSortField(field);
       setSortOrder("asc");
@@ -126,21 +126,21 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
               </span>
             )}
           </button>
-          {/* Storage Sort */}
+          {/* Ram Sort */}
           <button
             className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors
               ${
-                sortField === "storage"
+                sortField === "ram"
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-secondary text-muted-foreground border-transparent hover:bg-primary/10"
               }
             `}
-            onClick={() => handleSortClick("storage")}
+            onClick={() => handleSortClick("ram")}
             type="button"
           >
             <HardDrive size={16} className="mr-1" />
-            <span className="text-sm">Storage</span>
-            {sortField === "storage" && (
+            <span className="text-sm">RAM</span>
+            {sortField === "ram" && (
               <span className="ml-1 text-xs">
                 {sortOrder === "asc" ? "↑" : sortOrder === "desc" ? "↓" : ""}
               </span>

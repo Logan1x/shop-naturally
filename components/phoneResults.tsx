@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, IndianRupee, HardDrive, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import PhoneCard from "./phoneCard";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,43 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
   query,
   onNewSearch,
 }) => {
+  const [sortField, setSortField] = React.useState<
+    null | "price" | "storage" | "reviews"
+  >(null);
+  const [sortOrder, setSortOrder] = React.useState<null | "asc" | "desc">(null);
+
   if (!results) return null;
+
+  // Sorting logic
+  const getSortedResults = () => {
+    if (!sortField || !sortOrder) return results;
+    const sorted = [...results].sort((a, b) => {
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+      if (typeof aValue !== "number") aValue = 0;
+      if (typeof bValue !== "number") bValue = 0;
+      if (sortOrder === "asc") return aValue - bValue;
+      return bValue - aValue;
+    });
+    return sorted;
+  };
+
+  const sortedResults = getSortedResults();
+
+  // Helper for cycling sort state
+  const handleSortClick = (field: "price" | "storage" | "reviews") => {
+    if (sortField !== field) {
+      setSortField(field);
+      setSortOrder("asc");
+    } else if (sortOrder === "asc") {
+      setSortOrder("desc");
+    } else if (sortOrder === "desc") {
+      setSortField(null);
+      setSortOrder(null);
+    } else {
+      setSortOrder("asc");
+    }
+  };
 
   if (results.length === 0) {
     return (
@@ -48,7 +84,7 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
               variant="outline"
               className="px-3 py-1 rounded-full bg-secondary text-muted-foreground border-0"
             >
-              {results.length} results
+              {sortedResults.length} results
             </Badge>
           </div>
           <h2 className="text-xl font-medium mb-2">
@@ -58,6 +94,83 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
           <p className="text-muted-foreground">
             Select any phone to see more details
           </p>
+        </div>
+
+        {/* Filter/Sort Bar */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {/* Price Sort */}
+          <button
+            className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors
+              ${
+                sortField === "price"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-secondary text-muted-foreground border-transparent hover:bg-primary/10"
+              }
+            `}
+            onClick={() => handleSortClick("price")}
+            type="button"
+          >
+            <IndianRupee size={16} className="mr-1" />
+            <span className="text-sm">Price</span>
+            {sortField === "price" && (
+              <span className="ml-1 text-xs">
+                {sortOrder === "asc" ? "↑" : sortOrder === "desc" ? "↓" : ""}
+              </span>
+            )}
+          </button>
+          {/* Storage Sort */}
+          <button
+            className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors
+              ${
+                sortField === "storage"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-secondary text-muted-foreground border-transparent hover:bg-primary/10"
+              }
+            `}
+            onClick={() => handleSortClick("storage")}
+            type="button"
+          >
+            <HardDrive size={16} className="mr-1" />
+            <span className="text-sm">Storage</span>
+            {sortField === "storage" && (
+              <span className="ml-1 text-xs">
+                {sortOrder === "asc" ? "↑" : sortOrder === "desc" ? "↓" : ""}
+              </span>
+            )}
+          </button>
+          {/* Reviews Sort */}
+          <button
+            className={`flex items-center gap-1 px-3 py-1 rounded-full border transition-colors
+              ${
+                sortField === "reviews"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-secondary text-muted-foreground border-transparent hover:bg-primary/10"
+              }
+            `}
+            onClick={() => handleSortClick("reviews")}
+            type="button"
+          >
+            <Star size={16} className="mr-1" />
+            <span className="text-sm">Reviews</span>
+            {sortField === "reviews" && (
+              <span className="ml-1 text-xs">
+                {sortOrder === "asc" ? "↑" : sortOrder === "desc" ? "↓" : ""}
+              </span>
+            )}
+          </button>
+          {/* Clear Sort */}
+          {sortField && sortOrder && (
+            <button
+              className="flex items-center gap-1 px-3 py-1 rounded-full border bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                setSortField(null);
+                setSortOrder(null);
+              }}
+              type="button"
+            >
+              <span className="text-sm">Clear</span>
+            </button>
+          )}
         </div>
 
         <motion.div
@@ -73,7 +186,7 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
           initial="hidden"
           animate="visible"
         >
-          {results.map((phone, index) => (
+          {sortedResults.map((phone, index) => (
             <motion.div
               key={index}
               variants={{

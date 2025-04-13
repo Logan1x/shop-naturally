@@ -9,12 +9,14 @@ interface PhoneResultsProps {
   results: any[] | null;
   query: string;
   onNewSearch: () => void;
+  message?: string;
 }
 
 const PhoneResults: React.FC<PhoneResultsProps> = ({
   results,
   query,
   onNewSearch,
+  message,
 }) => {
   const [sortField, setSortField] = React.useState<
     null | "price" | "storage" | "reviews"
@@ -60,10 +62,16 @@ const PhoneResults: React.FC<PhoneResultsProps> = ({
         <Search size={48} className="text-muted-foreground mb-4 opacity-70" />
         <h3 className="text-xl font-medium mb-2">No matches found</h3>
         <p className="text-muted-foreground text-center max-w-md mb-6">
-          We couldn&apos;t find any phones matching your query:{" "}
-          <span className="font-medium text-foreground">
-            &quot;{query}&quot;
-          </span>
+          {message ? (
+            <span>{message}</span>
+          ) : (
+            <>
+              We couldn&apos;t find any phones matching your query:{" "}
+              <span className="font-medium text-foreground">
+                &quot;{query}&quot;
+              </span>
+            </>
+          )}
         </p>
         <button
           onClick={onNewSearch}

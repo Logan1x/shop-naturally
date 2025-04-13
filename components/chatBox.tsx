@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Send, Loader2 } from "lucide-react";
-import { PLACEHOLDER_TEXTS } from "@/static/constants";
+import { PLACEHOLDER_TEXTS, LOADING_MESSAGES } from "@/static/constants";
 import PhoneResults from "./phoneResults";
 
 const ChatInput: React.FC = () => {
@@ -15,6 +15,8 @@ const ChatInput: React.FC = () => {
   const [results, setResults] = useState<any[] | null>(null);
   const [showChat, setShowChat] = useState(true);
   const [lastQuery, setLastQuery] = useState("");
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [apiMessage, setApiMessage] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,16 +32,23 @@ const ChatInput: React.FC = () => {
         message: query,
       });
 
-      if (data.phones) {
+      if (data.success === false && data.message) {
+        setResults([]);
+        setApiMessage(data.message);
+        setShowChat(false);
+      } else if (data.phones) {
         setResults(data.phones);
+        setApiMessage(null);
         setShowChat(false);
       } else {
         setResults([]);
+        setApiMessage(null);
         setShowChat(false);
       }
     } catch (error) {
       console.error("Error sending message:", error);
       setResults(null);
+      setApiMessage("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
       setInput("");
@@ -56,6 +65,7 @@ const ChatInput: React.FC = () => {
   const handleNewSearch = () => {
     setShowChat(true);
     setResults(null);
+    setApiMessage(null);
     setInput("");
 
     setTimeout(() => {
@@ -83,6 +93,20 @@ const ChatInput: React.FC = () => {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  // Cycle loading messages when loading
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setLoadingMessageIndex(
+        (prevIndex) => (prevIndex + 1) % LOADING_MESSAGES.length
+      );
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 flex flex-col h-full">
@@ -171,6 +195,7 @@ const ChatInput: React.FC = () => {
           results={results}
           query={lastQuery}
           onNewSearch={handleNewSearch}
+          message={apiMessage}
         />
       )}
 
@@ -185,7 +210,7 @@ const ChatInput: React.FC = () => {
             />
             <p className="text-lg font-medium">Searching phones...</p>
             <p className="text-muted-foreground">
-              Finding the best matches for you
+              {LOADING_MESSAGES[loadingMessageIndex]}
             </p>
           </div>
         </div>

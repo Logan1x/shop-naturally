@@ -71,6 +71,21 @@ export async function POST(request: Request) {
       filters: searchParams,
     });
 
+    // If searchParams is empty object, return no results found
+    if (
+      searchParams &&
+      typeof searchParams === "object" &&
+      Object.keys(searchParams).length === 0
+    ) {
+      return NextResponse.json({
+        success: false,
+        phones: [],
+        message:
+          "No results found. Please try again with different search terms.",
+        conversationId: conversation._id,
+      });
+    }
+
     const phones = await searchPhones(searchParams);
 
     return NextResponse.json({

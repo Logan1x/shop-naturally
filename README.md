@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shop Naturally - Phone Search Backend Logic
 
-## Getting Started
+This document outlines the logic implemented in `lib/search/searchPhones.ts` for searching and ranking phones based on user queries and internal ranking criteria.
 
-First, run the development server:
+## Search Process Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The search process involves several steps executed via a MongoDB aggregation pipeline:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1.  **Filtering (`$match`)**:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    - Applies filters based on user input (price range, RAM, storage, brand, rating, stock status, name, reviews, text search terms, popularity).
+    - Includes a specific recommendation logic: if only a maximum price is set, it narrows the search to a ₹5000 range below that maximum.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2.  **Weighted Scoring (`$addFields`)**:
 
-## Learn More
+    - Calculates a `score` for each phone to determine its relevance beyond simple filtering.
+    - Different features contribute differently to the score (weights):
+      - `bought`: 4x
+      - `reviews`: 3x
+      - `ratingFloat`: 2x
+      - `ram`: 1x
+      - `storage`: 1x
+    - Missing values (`null`) for these fields are treated as 0 during score calculation (`$ifNull`).
 
-To learn more about Next.js, take a look at the following resources:
+3.  **Initial Sorting (`$sort`)**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    - Phones are sorted primarily by the calculated `score` in descending order (highest score first).
+    - `price` (ascending, lowest first) is used as a secondary sort key to break ties.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4.  **Brand Diversity Enforcement**:
 
-## Deploy on Vercel
+    - **Group by Brand (`$group`)**: Phones are grouped by their `brand`.
+    - **Limit per Brand (`$project` & `$slice`)**: Each brand group is limited to its top 4 phones (based on the initial sort).
+    - **Recombine (`$unwind` & `$replaceRoot`)**: The limited groups are merged back into a single list, ensuring no brand has more than 4 entries.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5.  **Final Sorting (`$sort`)**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    - The diversified list is sorted again by `score` (descending) and `price` (ascending).
+
+6.  **Result Limiting (`$limit`)**:
+    - The final list is limited to the top 8 phones.
+
+This multi-stage process aims to return the most relevant phones based on user criteria and popularity/ratings, while also ensuring a variety of brands are presented in the results.

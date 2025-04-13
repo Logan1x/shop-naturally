@@ -60,8 +60,7 @@ export async function searchPhones(filters: any) {
   // Simplified recommendation logic
   // If price_max is specified, filter to [price_max - 10000, price_max]
   if (filters.price_max) {
-    const minPrice =
-      filters.price_min || Math.max(0, filters.price_max - 10000);
+    const minPrice = filters.price_min || Math.max(0, filters.price_max - 5000);
     match.price = { $gte: minPrice, $lte: filters.price_max };
   }
 
@@ -71,14 +70,63 @@ export async function searchPhones(filters: any) {
     return await Phone.aggregate([
       { $match: match },
       {
-        $sort: {
-          storage: -1, // Then maximize storage
-          ram: -1, // Maximize RAM
-          bought: -1, // Then most bought
-          reviews: -1, // Then most reviews
+        // Add a calculated score field based on weighted parameters
+        $addFields: {
+          score: {
+            $add: [
+              // Assign higher weights to bought and reviews
+              { $multiply: [{ $ifNull: ["$bought", 0] }, 4] },
+              { $multiply: [{ $ifNull: ["$reviews", 0] }, 3] },
+              { $multiply: [{ $ifNull: ["$ratingFloat", 0] }, 2] },
+              // Lower weights for RAM and storage
+              { $multiply: [{ $ifNull: ["$ram", 0] }, 1] },
+              { $multiply: [{ $ifNull: ["$storage", 0] }, 1] },
+            ],
+          },
         },
       },
-      { $limit: 8 },
+      {
+        // Sort primarily by the calculated score in descending order
+        $sort: {
+          score: -1,
+          price: 1, // Tie-breaker
+        },
+      },
+      // --- Start Brand Diversity Logic ---
+      {
+        // Group by brand, keeping the sorted phones within each group
+        $group: {
+          _id: "$brand",
+          phones: { $push: "$$ROOT" }, // Push the whole document
+        },
+      },
+      {
+        // Limit each brand group to a maximum of 4 phones
+        $project: {
+          brand: "$_id",
+          topPhones: { $slice: ["$phones", 4] }, // Take the top 4 (already sorted)
+        },
+      },
+      {
+        // Unwind the limited phone arrays back into individual documents
+        $unwind: "$topPhones",
+      },
+      {
+        // Promote the phone document back to the root level
+        $replaceRoot: { newRoot: "$topPhones" },
+      },
+      // --- End Brand Diversity Logic ---
+      {
+        // Re-sort the diversified list by the original score and price
+        $sort: {
+          score: -1,
+          price: 1,
+        },
+      },
+      {
+        // Take the final top 8 from the diversified pool
+        $limit: 8,
+      },
     ]);
   } catch (e) {
     console.error("Error querying phones:", e);

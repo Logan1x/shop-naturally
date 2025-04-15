@@ -1,7 +1,9 @@
 import Phone from "@/lib/models/phone";
+import Conversations from "@/lib/models/conversations"; // Import Conversations model
+import mongoose from "mongoose"; // Import mongoose for ObjectId validation
 
-// Search phones based on extracted filters
-export async function searchPhones(filters: any) {
+// Search phones based on extracted filters and optionally update the conversation
+export async function searchPhones(filters: any, conversationId?: string) {
   const match: any = {};
 
   // Basic filters
@@ -59,15 +61,36 @@ export async function searchPhones(filters: any) {
 
   // Simplified recommendation logic
   // If price_max is specified, filter to [price_max - 10000, price_max]
-  if (filters.price_max) {
-    const minPrice = filters.price_min || Math.max(0, filters.price_max - 5000);
-    match.price = { $gte: minPrice, $lte: filters.price_max };
+  if (filters.price_max !== undefined) {
+    // Check for undefined explicitly
+    let priceGap: number;
+    if (filters.price_max <= 15000) {
+      priceGap = 3000;
+    } else if (filters.price_max <= 40000) {
+      priceGap = 7000;
+    } else {
+      priceGap = 15000;
+    }
+    // Use ?? for nullish coalescing, default to calculated min price if price_min is not provided
+    const calculatedMinPrice = Math.max(0, filters.price_max - priceGap);
+    const minPrice = filters.price_min ?? calculatedMinPrice;
+
+    // Ensure the effective minPrice doesn't exceed price_max
+    const effectiveMinPrice = Math.min(minPrice, filters.price_max);
+
+    // Update the match query, ensuring existing $gte isn't overwritten if price_min was also set earlier
+    match.price = {
+      ...match.price,
+      $gte: effectiveMinPrice,
+      $lte: filters.price_max,
+    };
   }
 
   console.log({ match });
 
   try {
-    return await Phone.aggregate([
+    // Perform the aggregation to find phones
+    const phones = await Phone.aggregate([
       { $match: match },
       {
         // Add a calculated score field based on weighted parameters
@@ -128,6 +151,21 @@ export async function searchPhones(filters: any) {
         $limit: 8,
       },
     ]);
+
+    if (conversationId && mongoose.Types.ObjectId.isValid(conversationId)) {
+      try {
+        await Conversations.findByIdAndUpdate(conversationId, {
+          $set: { effectiveFilters: match as any },
+        });
+      } catch (updateError) {
+        console.error(
+          `Error updating conversation ${conversationId}:`,
+          updateError
+        );
+      }
+    }
+
+    return phones;
   } catch (e) {
     console.error("Error querying phones:", e);
     throw e;

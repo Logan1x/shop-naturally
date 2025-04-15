@@ -86,7 +86,10 @@ export async function POST(request: Request) {
       });
     }
 
-    const phones = await searchPhones(searchParams);
+    const phones = await searchPhones(
+      searchParams,
+      conversation._id.toString()
+    );
 
     return NextResponse.json({
       success: true,

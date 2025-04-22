@@ -12,7 +12,21 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Shop Naturally",
-  description: "Like asking a friend which phone to buy",
+  description: "Find the best phone for you",
+  openGraph: {
+    title: "Shop Naturally",
+    description: "Find the best phone for you",
+    type: "website",
+    url: "https://shop.khushal.live",
+    images: [
+      {
+        url: "/og_image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Shop Naturally Open Graph Image",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

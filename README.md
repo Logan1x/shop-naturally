@@ -1,6 +1,4 @@
-# Shop Naturally - Phone Search Backend Logic
-
-This document outlines the logic implemented in `lib/search/searchPhones.ts` for searching and ranking phones based on user queries and internal ranking criteria.
+# Shop Naturally - talk and find a new phone
 
 ## Search Process Overview
 

@@ -24,6 +24,14 @@ CREATE TABLE IF NOT EXISTS phones (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS conversations (
+  id SERIAL PRIMARY KEY,
+  user_msg TEXT NOT NULL,
+  filters JSONB,
+  effective_filters JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 `;
 
 function amazonUrl(name: string): string {

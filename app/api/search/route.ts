@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rateLimiter";
 import { extractSearchParameters } from "@/lib/search/extractSearchParameters";
 import { searchPhones } from "@/lib/search/searchPhones";
+import pool from "@/lib/db";
 
 export async function POST(request: Request) {
   const ip =
@@ -57,6 +58,16 @@ export async function POST(request: Request) {
     }
 
     console.log("Extracted search parameters:", searchParams);
+
+    // Log conversation
+    try {
+      await pool.query(
+        "INSERT INTO conversations (user_msg, filters) VALUES ($1, $2)",
+        [message, JSON.stringify(searchParams)]
+      );
+    } catch (logErr) {
+      console.error("Failed to log conversation:", logErr);
+    }
 
     if (
       searchParams &&

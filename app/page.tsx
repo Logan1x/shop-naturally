@@ -4,6 +4,7 @@ import ChatInput from "@/components/chatBox";
 import { LogoIcon } from "@/components/icons";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Github } from "lucide-react";
 
 const Index = () => {
   return (
@@ -19,6 +20,14 @@ const Index = () => {
             </span>
             <span className="font-medium text-lg">Shop Naturally</span>
           </div>
+          <Link
+            href="https://github.com/Logan1x/shop-naturally"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Github size={22} />
+          </Link>
         </div>
       </header>
 

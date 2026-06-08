@@ -104,32 +104,56 @@ export async function extractSearchParameters(message: string) {
     },
   ];
 
-  const response = await openai.chat.completions.create({
-    model: "openrouter/free",
-    messages: [
-      {
-        role: "system",
-        content:
-          "Extract structured search parameters for phone queries. Correct the brand name if user made a typo.",
-      },
-      { role: "user", content: message },
-    ],
-    tools: tools as any,
-    tool_choice: "auto",
-  });
+  const MAX_RETRIES = 3;
+  const BASE_DELAY_MS = 1000;
 
-  const toolCalls = response.choices[0]?.message?.tool_calls;
-  if (toolCalls) {
-    for (const toolCall of toolCalls) {
-      if (toolCall.function.name === "search_phones") {
-        try {
-          return JSON.parse(toolCall.function.arguments);
-        } catch (error) {
-          console.error("Error parsing search parameters:", error);
-          return {};
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: "openrouter/free",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Extract structured search parameters for phone queries. Correct the brand name if user made a typo.",
+          },
+          { role: "user", content: message },
+        ],
+        tools: tools as any,
+        tool_choice: "auto",
+      });
+
+      const toolCalls = response.choices[0]?.message?.tool_calls;
+      if (toolCalls) {
+        for (const toolCall of toolCalls) {
+          if (toolCall.function.name === "search_phones") {
+            try {
+              return JSON.parse(toolCall.function.arguments);
+            } catch (error) {
+              console.error("Error parsing search parameters:", error);
+              return {};
+            }
+          }
         }
       }
+      return {};
+    } catch (error: any) {
+      const isLastAttempt = attempt === MAX_RETRIES;
+      console.error(
+        `OpenRouter attempt ${attempt}/${MAX_RETRIES} failed:`,
+        error?.message || error
+      );
+
+      if (isLastAttempt) {
+        console.error("All retries exhausted, returning empty filters");
+        return {};
+      }
+
+      const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
+      console.log(`Retrying in ${delay}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
+
   return {};
 }

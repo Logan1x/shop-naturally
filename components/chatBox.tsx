@@ -177,7 +177,7 @@ const ChatInput: React.FC = () => {
                 <Button
                   type="submit"
                   size="icon"
-                  className="absolute right-4 bottom-4 w-10 h-10 rounded-full transition-all"
+                  className="absolute right-4 bottom-4 w-10 h-10 rounded-full transition-all cursor-pointer"
                   disabled={!input.trim() || isLoading}
                 >
                   {isLoading ? (

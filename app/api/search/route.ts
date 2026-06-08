@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rateLimiter";
-import Conversations from "@/lib/models/conversations";
-import connectDB from "@/lib/db";
 import { extractSearchParameters } from "@/lib/search/extractSearchParameters";
 import { searchPhones } from "@/lib/search/searchPhones";
 
-// Handle search request
 export async function POST(request: Request) {
   const ip =
     request.headers.get("x-forwarded-for") || (request as any).ip || "unknown";
@@ -22,7 +19,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    await connectDB();
     const { message } = await request.json();
 
     if (!message) {
@@ -34,7 +30,6 @@ export async function POST(request: Request) {
 
     console.log("Received message:", message);
 
-    // List of special queries and their corresponding filters
     const specialQueries: { [key: string]: any } = {
       "best phones under ₹15,000": { price_max: 15000, price_min: 10000 },
       "phones with 64gb storage": { storage: 64 },
@@ -46,7 +41,6 @@ export async function POST(request: Request) {
       },
     };
 
-    // Normalize message for matching
     const normalizedMsg = message.trim().toLowerCase();
 
     let searchParams: any = null;
@@ -59,19 +53,11 @@ export async function POST(request: Request) {
     }
 
     if (!searchParams) {
-      // Fallback to OpenAI extraction for non-special queries
       searchParams = await extractSearchParameters(normalizedMsg);
     }
 
     console.log("Extracted search parameters:", searchParams);
 
-    // @ts-ignore
-    const conversation = await Conversations.create({
-      userMsg: message,
-      filters: searchParams,
-    });
-
-    // If searchParams is empty object, return no results found
     if (
       searchParams &&
       typeof searchParams === "object" &&
@@ -82,19 +68,14 @@ export async function POST(request: Request) {
         phones: [],
         message:
           "No results found. Please try again with different search terms.",
-        conversationId: conversation._id,
       });
     }
 
-    const phones = await searchPhones(
-      searchParams,
-      conversation._id.toString()
-    );
+    const phones = await searchPhones(searchParams);
 
     return NextResponse.json({
       success: true,
       phones,
-      conversationId: conversation._id,
     });
   } catch (error) {
     console.error("Search API Error:", error);

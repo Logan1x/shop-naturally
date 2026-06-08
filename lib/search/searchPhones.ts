@@ -1,68 +1,17 @@
-import Phone from "@/lib/models/phone";
-import Conversations from "@/lib/models/conversations"; // Import Conversations model
-import mongoose from "mongoose"; // Import mongoose for ObjectId validation
+import pool from "@/lib/db";
 
-// Search phones based on extracted filters and optionally update the conversation
-export async function searchPhones(filters: any, conversationId?: string) {
-  const match: any = {};
+export async function searchPhones(filters: any) {
+  const conditions: string[] = [];
+  const values: any[] = [];
+  let paramIndex = 1;
 
-  // Basic filters
-
-  // Price
-  if (filters.price_min !== undefined)
-    match.price = { ...match.price, $gte: filters.price_min };
-  if (filters.price_max !== undefined)
-    match.price = { ...match.price, $lte: filters.price_max };
-
-  // RAM: exact value takes precedence over min/max
-  if (filters.ram !== undefined) {
-    match.ram = filters.ram;
-  } else {
-    if (filters.ram_min !== undefined)
-      match.ram = { ...match.ram, $gte: filters.ram_min };
-    if (filters.ram_max !== undefined)
-      match.ram = { ...match.ram, $lte: filters.ram_max };
+  function addCondition(condition: string, value: any) {
+    conditions.push(condition.replace(/\$\d+/, `$${paramIndex++}`));
+    values.push(value);
   }
 
-  // Storage: exact value takes precedence over min/max
-  if (filters.storage !== undefined) {
-    match.storage = filters.storage;
-  } else {
-    if (filters.storage_min !== undefined)
-      match.storage = { ...match.storage, $gte: filters.storage_min };
-    if (filters.storage_max !== undefined)
-      match.storage = { ...match.storage, $lte: filters.storage_max };
-  }
-  if (filters.brand) match.brand = { $regex: new RegExp(filters.brand, "i") };
-  if (filters.rating_min)
-    match.ratingFloat = { ...match.ratingFloat, $gte: filters.rating_min };
-  if (filters.isInStock !== undefined) match.isInStock = filters.isInStock;
-
-  // New filters
-  if (filters.name) match.name = { $regex: new RegExp(filters.name, "i") };
-  if (filters.reviews_min) match.reviews = { $gte: filters.reviews_min };
-
-  // Text search in fullName
-  if (filters.search_term || filters.has_feature || filters.camera_quality) {
-    const regexTerms = [];
-    if (filters.search_term) regexTerms.push(filters.search_term);
-    if (filters.has_feature) regexTerms.push(filters.has_feature);
-    if (filters.camera_quality) regexTerms.push(filters.camera_quality);
-
-    match.fullName = {
-      $regex: new RegExp(regexTerms.join("|"), "i"),
-    };
-  }
-
-  // Popularity filter (bought is now a number)
-  if (filters.popularity_min !== undefined) {
-    match.bought = { ...match.bought, $gte: filters.popularity_min };
-  }
-
-  // Simplified recommendation logic
-  // If price_max is specified, filter to [price_max - 10000, price_max]
+  // Price range (handle narrowing in one place)
   if (filters.price_max !== undefined) {
-    // Check for undefined explicitly
     let priceGap: number;
     if (filters.price_max <= 15000) {
       priceGap = 3000;
@@ -71,101 +20,126 @@ export async function searchPhones(filters: any, conversationId?: string) {
     } else {
       priceGap = 15000;
     }
-    // Use ?? for nullish coalescing, default to calculated min price if price_min is not provided
     const calculatedMinPrice = Math.max(0, filters.price_max - priceGap);
     const minPrice = filters.price_min ?? calculatedMinPrice;
-
-    // Ensure the effective minPrice doesn't exceed price_max
     const effectiveMinPrice = Math.min(minPrice, filters.price_max);
 
-    // Update the match query, ensuring existing $gte isn't overwritten if price_min was also set earlier
-    match.price = {
-      ...match.price,
-      $gte: effectiveMinPrice,
-      $lte: filters.price_max,
-    };
+    addCondition(`price >= $1`, effectiveMinPrice);
+    addCondition(`price <= $1`, filters.price_max);
+  } else if (filters.price_min !== undefined) {
+    addCondition(`price >= $1`, filters.price_min);
   }
 
-  console.log({ match });
+  // RAM
+  if (filters.ram !== undefined) {
+    addCondition(`ram = $1`, filters.ram);
+  } else {
+    if (filters.ram_min !== undefined) {
+      addCondition(`ram >= $1`, filters.ram_min);
+    }
+    if (filters.ram_max !== undefined) {
+      addCondition(`ram <= $1`, filters.ram_max);
+    }
+  }
+
+  // Storage
+  if (filters.storage !== undefined) {
+    addCondition(`storage = $1`, filters.storage);
+  } else {
+    if (filters.storage_min !== undefined) {
+      addCondition(`storage >= $1`, filters.storage_min);
+    }
+    if (filters.storage_max !== undefined) {
+      addCondition(`storage <= $1`, filters.storage_max);
+    }
+  }
+
+  // Brand (case-insensitive partial match)
+  if (filters.brand) {
+    addCondition(`brand ILIKE $1`, `%${filters.brand}%`);
+  }
+
+  // Rating
+  if (filters.rating_min) {
+    addCondition(`rating_float >= $1`, filters.rating_min);
+  }
+
+  // Stock
+  if (filters.isInStock !== undefined) {
+    addCondition(`is_in_stock = $1`, filters.isInStock);
+  }
+
+  // Name search
+  if (filters.name) {
+    addCondition(`name ILIKE $1`, `%${filters.name}%`);
+  }
+
+  // Reviews
+  if (filters.reviews_min) {
+    addCondition(`reviews >= $1`, filters.reviews_min);
+  }
+
+  // Text search in full_name
+  if (filters.search_term || filters.has_feature || filters.camera_quality) {
+    const regexTerms: string[] = [];
+    if (filters.search_term) regexTerms.push(filters.search_term);
+    if (filters.has_feature) regexTerms.push(filters.has_feature);
+    if (filters.camera_quality) regexTerms.push(filters.camera_quality);
+    addCondition(`full_name ILIKE $1`, `%${regexTerms.join("|")}%`);
+  }
+
+  // Popularity
+  if (filters.popularity_min !== undefined) {
+    addCondition(`bought >= $1`, filters.popularity_min);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const query = `SELECT * FROM phones ${whereClause}`;
+
+  console.log("SQL:", query);
+  console.log("Values:", values);
 
   try {
-    // Perform the aggregation to find phones
-    const phones = await Phone.aggregate([
-      { $match: match },
-      {
-        // Add a calculated score field based on weighted parameters
-        $addFields: {
-          score: {
-            $add: [
-              // Assign higher weights to bought and reviews
-              { $multiply: [{ $ifNull: ["$bought", 0] }, 4] },
-              { $multiply: [{ $ifNull: ["$reviews", 0] }, 3] },
-              { $multiply: [{ $ifNull: ["$ratingFloat", 0] }, 2] },
-              // Lower weights for RAM and storage
-              { $multiply: [{ $ifNull: ["$ram", 0] }, 1] },
-              { $multiply: [{ $ifNull: ["$storage", 0] }, 1] },
-            ],
-          },
-        },
-      },
-      {
-        // Sort primarily by the calculated score in descending order
-        $sort: {
-          score: -1,
-          price: 1, // Tie-breaker
-        },
-      },
-      // --- Start Brand Diversity Logic ---
-      {
-        // Group by brand, keeping the sorted phones within each group
-        $group: {
-          _id: "$brand",
-          phones: { $push: "$$ROOT" }, // Push the whole document
-        },
-      },
-      {
-        // Limit each brand group to a maximum of 4 phones
-        $project: {
-          brand: "$_id",
-          topPhones: { $slice: ["$phones", 4] }, // Take the top 4 (already sorted)
-        },
-      },
-      {
-        // Unwind the limited phone arrays back into individual documents
-        $unwind: "$topPhones",
-      },
-      {
-        // Promote the phone document back to the root level
-        $replaceRoot: { newRoot: "$topPhones" },
-      },
-      // --- End Brand Diversity Logic ---
-      {
-        // Re-sort the diversified list by the original score and price
-        $sort: {
-          score: -1,
-          price: 1,
-        },
-      },
-      {
-        // Take the final top 8 from the diversified pool
-        $limit: 8,
-      },
-    ]);
+    const { rows: rawPhones } = await pool.query(query, values);
 
-    if (conversationId && mongoose.Types.ObjectId.isValid(conversationId)) {
-      try {
-        await Conversations.findByIdAndUpdate(conversationId, {
-          $set: { effectiveFilters: match as any },
-        });
-      } catch (updateError) {
-        console.error(
-          `Error updating conversation ${conversationId}:`,
-          updateError
-        );
+    // Map snake_case to camelCase for frontend
+    const phones = rawPhones.map((p) => ({
+      ...p,
+      fullName: p.full_name,
+      ratingFloat: p.rating_float,
+      isInStock: p.is_in_stock,
+      productUrl: p.product_url,
+      scrapedAt: p.scraped_at,
+      createdAt: p.created_at,
+      updatedAt: p.updated_at,
+    }));
+
+    // Score and rank in JS
+    const scored = phones.map((phone) => ({
+      ...phone,
+      score:
+        (phone.bought || 0) * 4 +
+        (phone.reviews || 0) * 3 +
+        (phone.rating_float || 0) * 2 +
+        (phone.ram || 0) +
+        (phone.storage || 0),
+    }));
+
+    scored.sort((a, b) => b.score - a.score || a.price - b.price);
+
+    // Brand diversity: max 4 per brand
+    const brandCounts: Record<string, number> = {};
+    const diversified: typeof scored = [];
+    for (const phone of scored) {
+      const count = brandCounts[phone.brand] || 0;
+      if (count < 4) {
+        diversified.push(phone);
+        brandCounts[phone.brand] = count + 1;
       }
     }
 
-    return phones;
+    diversified.sort((a, b) => b.score - a.score || a.price - b.price);
+    return diversified.slice(0, 8);
   } catch (e) {
     console.error("Error querying phones:", e);
     throw e;

@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
 });
 
 // Extract search parameters using OpenAI function calling
@@ -104,7 +105,7 @@ export async function extractSearchParameters(message: string) {
   ];
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "openrouter/free",
     messages: [
       {
         role: "system",
